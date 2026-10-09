@@ -1,0 +1,571 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Velora Digital | Admin Dashboard</title>
+<meta name="theme-color" content="#080d18">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--bg:#080d18;--panel:#111a2b;--panel2:#17233a;--line:#293650;--text:#f5f7fc;--muted:#9caec7;--gold:#f3c66d;--green:#6ce0a4;--red:#ff8585}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(ellipse at top right,#1b2c4b,transparent 45%),var(--bg);color:var(--text);font:15px Arial,system-ui,sans-serif}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer;border:0;border-radius:9px;padding:11px 15px;background:var(--gold);color:#15120b;font-weight:700}
+button:disabled{opacity:.5;cursor:not-allowed}
+.secondary{background:#24334c;color:white;border:1px solid var(--line)}
+.danger{background:#4b222b;color:#ffd9de;border:1px solid #79343e}
+.hidden{display:none!important}
+.muted,small{color:var(--muted)}
+.login{min-height:100vh;display:grid;place-items:center;padding:20px}
+.box,.card{background:rgba(17,26,43,.96);border:1px solid var(--line);border-radius:17px;padding:20px}
+.login .box{width:min(440px,100%)}
+.brand{color:var(--gold);font-weight:900;letter-spacing:2px}
+h1{font-size:29px;margin:10px 0 18px}
+h2{font-size:18px;margin:0}
+.field{display:grid;gap:7px;margin:13px 0}
+label{font-size:12px;color:var(--muted)}
+input,select,textarea{width:100%;padding:12px;border-radius:9px;border:1px solid var(--line);background:#091321;color:white}
+textarea{resize:vertical}
+.layout{display:grid;grid-template-columns:235px minmax(0,1fr);min-height:100vh}
+aside{background:#060b13;border-right:1px solid var(--line);padding:22px 14px}
+.nav{display:grid;gap:7px;margin-top:25px}
+.nav button{background:transparent;color:#c5d1e2;text-align:left}
+.nav button.active,.nav button:hover{background:#1b2a41;color:white}
+.main{padding:25px;min-width:0}
+.top,.section,.toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.top{margin-bottom:20px}
+.section{margin:22px 0 12px}
+.grid{display:grid;gap:13px}
+.stats{grid-template-columns:repeat(4,minmax(0,1fr))}
+.label{color:var(--muted);font-size:13px}
+.value{font-size:25px;font-weight:800;margin-top:10px;overflow-wrap:anywhere}
+.page{display:none}.page.active{display:block}
+.formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.full{grid-column:1/-1}
+.notice{padding:12px;border:1px solid var(--line);border-radius:10px;margin:12px 0;overflow-wrap:anywhere}
+.success{color:var(--green)}.error{color:var(--red)}
+.tablewrap{overflow:auto;border:1px solid var(--line);border-radius:11px}
+table{width:100%;border-collapse:collapse;min-width:620px}
+th,td{padding:12px;border-bottom:1px solid var(--line);text-align:left;font-size:13px;vertical-align:top}
+th{background:#0b1423;color:var(--muted)}
+tr:last-child td{border-bottom:0}
+.badge{display:inline-block;padding:4px 8px;border-radius:30px;background:#263650;font-size:11px}
+.badge.paid,.badge.active,.badge.delivered{background:#174735;color:#a6f3cb}
+.badge.pending,.badge.submitted,.badge.inactive{background:#4a391b;color:#ffe5a4}
+.actions{display:flex;gap:6px;flex-wrap:wrap}
+.actions button{padding:7px 10px;font-size:12px}
+.toolbar{justify-content:flex-start;margin:12px 0}
+.toolbar input{max-width:300px}
+.empty{padding:20px;text-align:center;color:var(--muted)}
+@media(max-width:950px){.layout{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}aside{border-right:0;border-bottom:1px solid var(--line);padding:13px}.nav{display:flex;overflow:auto;margin-top:12px}.nav button{white-space:nowrap;padding:9px}.main{padding:14px}}
+@media(max-width:520px){.stats,.formgrid{grid-template-columns:1fr}.full{grid-column:auto}.value{font-size:22px}.card{padding:14px}}
+</style>
+</head>
+<body>
+
+<section id="login" class="login">
+  <form id="loginForm" class="box">
+    <div class="brand">VELORA DIGITAL</div>
+    <p class="muted">PRIVATE BUSINESS CONTROL CENTRE</p>
+    <h1>Admin sign in</h1>
+    <div id="loginMsg" class="notice hidden"></div>
+    <div class="field"><label>Admin email</label><input id="email" type="email" autocomplete="username" required></div>
+    <div class="field"><label>Password</label><input id="password" type="password" autocomplete="current-password" required></div>
+    <button id="loginBtn" type="submit" style="width:100%">Sign in securely</button>
+    <p class="muted">Only an authorized Velora administrator can access business records.</p>
+  </form>
+</section>
+
+<div id="app" class="layout hidden">
+  <aside>
+    <div class="brand">VELORA DIGITAL</div>
+    <small>ADMIN CONTROL CENTRE</small>
+    <nav class="nav" id="nav">
+      <button class="active" data-page="overview">Overview</button>
+      <button data-page="products">Products / E-books</button>
+      <button data-page="customers">Customers</button>
+      <button data-page="orders">Orders & Payments</button>
+      <button data-page="expenses">Expenses</button>
+      <button data-page="reports">Reports</button>
+    </nav>
+    <p class="muted" style="margin-top:25px;font-size:12px">Your public website remains separate. Publish products here to make them available to the connected catalogue.</p>
+  </aside>
+
+  <main class="main">
+    <header class="top">
+      <div><div class="brand">BUSINESS MANAGEMENT</div><h1 id="pageTitle">Overview</h1><small id="who"></small></div>
+      <div class="actions"><button class="secondary" id="refreshBtn">Refresh</button><button class="secondary" id="logoutBtn">Log out</button></div>
+    </header>
+    <div id="msg" class="notice hidden"></div>
+
+    <section id="overview" class="page active">
+      <div class="grid stats">
+        <div class="card"><div class="label">Total products</div><div class="value" id="statProducts">0</div></div>
+        <div class="card"><div class="label">Customers</div><div class="value" id="statCustomers">0</div></div>
+        <div class="card"><div class="label">Paid revenue</div><div class="value" id="statRevenue">₹0</div></div>
+        <div class="card"><div class="label">Pending payments</div><div class="value" id="statPending">0</div></div>
+        <div class="card"><div class="label">Orders today</div><div class="value" id="statToday">0</div></div>
+        <div class="card"><div class="label">Pending deliveries</div><div class="value" id="statDelivery">0</div></div>
+        <div class="card"><div class="label">This month's revenue</div><div class="value" id="statMonth">₹0</div></div>
+        <div class="card"><div class="label">Recorded expenses</div><div class="value" id="statExpenses">₹0</div></div>
+      </div>
+      <div class="section"><h2>Recent orders</h2><button class="secondary" data-go="orders">Manage orders</button></div>
+      <div id="recentOrders" class="empty">Loading...</div>
+    </section>
+
+    <section id="products" class="page">
+      <div class="section"><h2>Add or edit an e-book</h2><button class="secondary" id="clearProduct">Clear form</button></div>
+      <div class="card">
+        <form id="productForm" class="formgrid">
+          <input id="productId" type="hidden">
+          <div class="field"><label>Product title *</label><input id="pName" required maxlength="180" placeholder="AI Business Starter Kit 2026"></div>
+          <div class="field"><label>Price (INR) *</label><input id="pPrice" type="number" required min="0" step=".01" placeholder="599"></div>
+          <div class="field"><label>Category</label><input id="pCategory" value="E-book" placeholder="E-book / Trading / Business"></div>
+          <div class="field"><label>Website visibility</label><select id="pStatus"><option value="active">Published — show on website</option><option value="inactive">Draft / hidden</option></select></div>
+          <div class="field full"><label>Product description</label><textarea id="pDescription" rows="3" placeholder="Describe this product for customers"></textarea></div>
+          <div class="field full"><label>Cover image URL (optional)</label><input id="pImage" type="url" placeholder="https://..."></div>
+          <div class="field full"><label>Digital product link (optional)</label><input id="pFile" type="url" placeholder="https://..."></div>
+          <div class="field full"><label>Purchase instructions / notes (optional)</label><textarea id="pNotes" rows="2"></textarea></div>
+          <div class="full actions"><button id="saveProductBtn" type="submit">Save product</button></div>
+        </form>
+      </div>
+      <div class="section"><h2>Product catalogue</h2><button class="secondary" id="exportProducts">Export CSV</button></div>
+      <div class="toolbar"><input id="productSearch" placeholder="Search products..."></div>
+      <div id="productsTable" class="empty">Loading...</div>
+    </section>
+
+    <section id="customers" class="page">
+      <div class="section"><h2>Customer records</h2><button class="secondary" id="exportCustomers">Export CSV</button></div>
+      <div class="toolbar"><input id="customerSearch" placeholder="Search name, phone or email"></div>
+      <div id="customersTable" class="empty">Loading...</div>
+    </section>
+
+    <section id="orders" class="page">
+      <div class="section"><h2>Record customer order</h2></div>
+      <div class="notice">Record customer orders manually. Confirm the payment in your UPI/bank app before marking an order paid. This dashboard does not collect payments automatically.</div>
+      <div class="card">
+        <form id="orderForm" class="formgrid">
+          <div class="field"><label>Customer name *</label><input id="oName" required></div>
+          <div class="field"><label>WhatsApp / phone *</label><input id="oPhone" required></div>
+          <div class="field"><label>Email (optional)</label><input id="oEmail" type="email"></div>
+          <div class="field"><label>Product *</label><select id="oProduct" required><option value="">Select a product</option></select></div>
+          <div class="field"><label>Quantity</label><input id="oQuantity" type="number" min="1" value="1" required></div>
+          <div class="field"><label>Payment status</label><select id="oPaymentStatus"><option value="submitted">Screenshot received — verify</option><option value="pending">Awaiting payment</option><option value="paid">Paid and verified</option></select></div>
+          <div class="field"><label>Payment method</label><select id="oMethod"><option>PhonePe</option><option>UPI</option><option>Google Pay</option><option>Bank transfer</option><option>Cash</option><option>Other</option></select></div>
+          <div class="field"><label>Transaction reference</label><input id="oReference"></div>
+          <div class="field full"><label>Admin notes</label><textarea id="oNotes" rows="2"></textarea></div>
+          <div class="full"><button type="submit">Save customer and order</button></div>
+        </form>
+      </div>
+      <div class="section"><h2>Orders & payment verification</h2><button class="secondary" id="exportOrders">Export CSV</button></div>
+      <div class="toolbar"><input id="orderSearch" placeholder="Search order, customer or phone"><select id="orderFilter"><option value="">All payment statuses</option><option value="pending">Pending</option><option value="submitted">Submitted</option><option value="paid">Paid</option><option value="failed">Failed</option><option value="refunded">Refunded</option></select></div>
+      <div id="ordersTable" class="empty">Loading...</div>
+    </section>
+
+    <section id="expenses" class="page">
+      <div class="section"><h2>Record a business expense</h2></div>
+      <div class="card">
+        <form id="expenseForm" class="formgrid">
+          <div class="field"><label>Date *</label><input id="eDate" type="date" required></div>
+          <div class="field"><label>Category</label><select id="eCategory"><option>Software</option><option>Marketing</option><option>Internet / phone</option><option>Equipment</option><option>Design</option><option>Payment fees</option><option>Other</option></select></div>
+          <div class="field"><label>Amount (INR) *</label><input id="eAmount" type="number" min=".01" step=".01" required></div>
+          <div class="field"><label>Payment method</label><input id="eMethod" placeholder="UPI / Cash / Card"></div>
+          <div class="field full"><label>Description *</label><input id="eDescription" required></div>
+          <div class="full"><button type="submit">Save expense</button></div>
+        </form>
+      </div>
+      <div class="section"><h2>Expense history</h2><button class="secondary" id="exportExpenses">Export CSV</button></div>
+      <div id="expensesTable" class="empty">Loading...</div>
+    </section>
+
+    <section id="reports" class="page">
+      <div class="section"><h2>Business reports</h2><button class="secondary" id="exportReport">Export orders CSV</button></div>
+      <div class="notice">Revenue is calculated from orders marked paid. Expenses are based on records entered in the dashboard.</div>
+      <div id="reportsSummary" class="card">Loading report...</div>
+      <div class="section"><h2>Sales by product</h2></div>
+      <div id="productReport" class="empty">Loading...</div>
+    </section>
+  </main>
+</div>
+
+<script>
+/* IMPORTANT: use your Supabase Project URL and PUBLIC publishable key only.
+   Never place a service-role or secret key in browser HTML. */
+const SUPABASE_URL = "https://todzlbahwrrsrcnldatg.supabase.co/rest/v1/";
+const SUPABASE_KEY = "sb_publishable_JDWy7xtzU4ic7eqLdluykA_htaYkCUo";
+
+const $ = id => document.getElementById(id);
+let db, currentUser;
+let products = [], customers = [], orders = [], expenses = [];
+
+const money = n => new Intl.NumberFormat("en-IN", {
+  style:"currency", currency:"INR", maximumFractionDigits:2
+}).format(Number(n || 0));
+
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({
+  "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"
+}[c]));
+
+const localDate = d => {
+  const x = new Date(d);
+  return new Date(x.getTime() - x.getTimezoneOffset()*60000).toISOString().slice(0,10);
+};
+
+const prettyDate = d => d ? new Date(d).toLocaleString("en-IN") : "—";
+
+function showMessage(message, type="") {
+  const el = $("msg");
+  el.textContent = message;
+  el.className = "notice " + type;
+  el.classList.remove("hidden");
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function showLoginMessage(message) {
+  $("loginMsg").textContent = message;
+  $("loginMsg").classList.remove("hidden");
+}
+function makeTable(headers, rows) {
+  if (!rows.length) return '<div class="empty">No records found.</div>';
+  return '<div class="tablewrap"><table><thead><tr>' +
+    headers.map(h=>"<th>"+h+"</th>").join("") +
+    "</tr></thead><tbody>"+rows.join("")+"</tbody></table></div>";
+}
+function badge(value) {
+  const s = String(value || "—");
+  return `<span class="badge ${esc(s.toLowerCase())}">${esc(s)}</span>`;
+}
+function downloadCSV(filename, rows) {
+  if (!rows.length) return showMessage("There are no records to export.");
+  const keys = [...new Set(rows.flatMap(r=>Object.keys(r)))];
+  const cell = v => '"' + String(v ?? "").replace(/"/g,'""') + '"';
+  const content = [keys.map(cell).join(","), ...rows.map(r=>keys.map(k=>cell(r[k])).join(","))].join("\r\n");
+  const a = document.createElement("a");
+  const url = URL.createObjectURL(new Blob(["\ufeff"+content],{type:"text/csv;charset=utf-8"}));
+  a.href=url; a.download=filename; a.click(); URL.revokeObjectURL(url);
+}
+function showPage(name) {
+  document.querySelectorAll(".page").forEach(p=>p.classList.toggle("active",p.id===name));
+  document.querySelectorAll("[data-page]").forEach(b=>b.classList.toggle("active",b.dataset.page===name));
+  const titles = {overview:"Overview",products:"Products / E-books",customers:"Customers",orders:"Orders & Payments",expenses:"Expenses",reports:"Reports"};
+  $("pageTitle").textContent=titles[name] || "Dashboard";
+}
+function clearProductForm() {
+  $("productForm").reset();
+  $("productId").value="";
+  $("pCategory").value="E-book";
+  $("pStatus").value="active";
+  $("saveProductBtn").textContent="Save product";
+}
+
+async function connect() {
+  if (SUPABASE_URL.includes("PASTE_") || SUPABASE_KEY.includes("PASTE_")) {
+    throw new Error("Setup required: replace SUPABASE_URL and SUPABASE_KEY in this file.");
+  }
+  db = window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+  const {data,error} = await db.auth.getSession();
+  if(error) throw error;
+  if(data.session) await authorize();
+}
+async function authorize() {
+  const {data,error} = await db.auth.getUser();
+  if(error) throw error;
+  if(!data.user) { showLogin(); return; }
+
+  const admin = await db.from("admin_users")
+    .select("user_id").eq("user_id",data.user.id).maybeSingle();
+  if(admin.error) throw admin.error;
+  if(!admin.data) {
+    await db.auth.signOut();
+    showLogin();
+    showLoginMessage("This account is not registered as an administrator.");
+    return;
+  }
+
+  currentUser=data.user;
+  $("who").textContent=currentUser.email || "Admin";
+  $("login").classList.add("hidden");
+  $("app").classList.remove("hidden");
+  await refreshAll();
+}
+function showLogin() {
+  $("app").classList.add("hidden");
+  $("login").classList.remove("hidden");
+}
+async function refreshAll() {
+  try {
+    const results = await Promise.all([
+      db.from("products").select("*").order("created_at",{ascending:false}),
+      db.from("customers").select("*").order("created_at",{ascending:false}),
+      db.from("orders").select("*,customers(full_name,phone,email)").order("ordered_at",{ascending:false}).limit(1000),
+      db.from("business_expenses").select("*").order("expense_date",{ascending:false}).limit(1000)
+    ]);
+    const failure=results.find(r=>r.error);
+    if(failure) throw failure.error;
+    [products,customers,orders,expenses]=results.map(r=>r.data||[]);
+    renderAll();
+  } catch(e) {
+    showMessage("Database loading error: "+e.message+" — check your table names, columns and Supabase RLS policies.","error");
+  }
+}
+function renderAll() {
+  const paid=orders.filter(o=>o.payment_status==="paid");
+  const today=localDate(new Date());
+  const month=today.slice(0,7);
+  const revenue=paid.reduce((s,o)=>s+Number(o.total_amount||0),0);
+  const monthRevenue=paid.filter(o=>String(o.paid_at||"").slice(0,7)===month)
+    .reduce((s,o)=>s+Number(o.total_amount||0),0);
+  const todayOrders=orders.filter(o=>String(o.ordered_at||"").slice(0,10)===today).length;
+  const pending=orders.filter(o=>["pending","submitted"].includes(o.payment_status)).length;
+  const pendingDelivery=paid.filter(o=>o.delivery_status!=="delivered").length;
+  const expenseTotal=expenses.reduce((s,e)=>s+Number(e.amount||0),0);
+
+  $("statProducts").textContent=products.length;
+  $("statCustomers").textContent=customers.length;
+  $("statRevenue").textContent=money(revenue);
+  $("statPending").textContent=pending;
+  $("statToday").textContent=todayOrders;
+  $("statDelivery").textContent=pendingDelivery;
+  $("statMonth").textContent=money(monthRevenue);
+  $("statExpenses").textContent=money(expenseTotal);
+
+  $("recentOrders").innerHTML=makeTable(["Order","Customer","Product","Total","Payment","Date"],
+    orders.slice(0,8).map(o=>`<tr><td>#${esc(o.order_number||o.id)}</td><td>${esc(o.customers?.full_name)}<br>${esc(o.customers?.phone)}</td><td>${esc(o.product_name)}</td><td>${money(o.total_amount)}</td><td>${badge(o.payment_status)}</td><td>${esc(prettyDate(o.ordered_at))}</td></tr>`));
+
+  renderProducts();
+  renderCustomers();
+  renderOrders();
+  renderExpenses();
+
+  const byProduct={};
+  paid.forEach(o=>{
+    const key=o.product_name||"Unknown product";
+    byProduct[key] ||= {product:key,orders:0,units:0,revenue:0};
+    byProduct[key].orders++;
+    byProduct[key].units+=Number(o.quantity||1);
+    byProduct[key].revenue+=Number(o.total_amount||0);
+  });
+  $("productReport").innerHTML=makeTable(["Product","Paid orders","Units sold","Revenue"],
+    Object.values(byProduct).sort((a,b)=>b.revenue-a.revenue).map(p=>`<tr><td>${esc(p.product)}</td><td>${p.orders}</td><td>${p.units}</td><td>${money(p.revenue)}</td></tr>`));
+  $("reportsSummary").innerHTML=`<h2>Sales summary</h2><p>Total paid revenue: <b>${money(revenue)}</b></p><p>Recorded expenses: <b>${money(expenseTotal)}</b></p><p>Revenue minus recorded expenses: <b>${money(revenue-expenseTotal)}</b></p><p>Total orders: ${orders.length} · Paid orders: ${paid.length} · Customers: ${customers.length}</p>`;
+}
+function renderProducts() {
+  const q=$("productSearch").value.toLowerCase();
+  $("productsTable").innerHTML=makeTable(["Product","Category","Price","Status","Website link","Actions"],
+    products.filter(p=>[p.name,p.category,p.description].some(x=>String(x||"").toLowerCase().includes(q)))
+    .map(p=>`<tr><td><b>${esc(p.name)}</b><br><small>${esc(p.description||"")}</small></td><td>${esc(p.category||"—")}</td><td>${money(p.price)}</td><td>${badge(p.status)}</td><td>${p.status==="active"?"Published":"Hidden"}</td><td><div class="actions"><button class="secondary" data-edit-product="${esc(p.id)}">Edit</button><button class="secondary" data-toggle-product="${esc(p.id)}">${p.status==="active"?"Hide":"Publish"}</button></div></td></tr>`));
+  $("oProduct").innerHTML='<option value="">Select a product</option>'+products.filter(p=>p.status==="active")
+    .map(p=>`<option value="${esc(p.id)}">${esc(p.name)} — ${money(p.price)}</option>`).join("");
+}
+function renderCustomers() {
+  const q=$("customerSearch").value.toLowerCase();
+  $("customersTable").innerHTML=makeTable(["Name","Phone","Email","Orders","Paid total","Added"],
+    customers.filter(c=>[c.full_name,c.phone,c.email].some(x=>String(x||"").toLowerCase().includes(q)))
+    .map(c=>{
+      const os=orders.filter(o=>o.customer_id===c.id);
+      const paid=os.filter(o=>o.payment_status==="paid");
+      return `<tr><td>${esc(c.full_name)}</td><td>${esc(c.phone)}</td><td>${esc(c.email||"—")}</td><td>${os.length}</td><td>${money(paid.reduce((s,o)=>s+Number(o.total_amount||0),0))}</td><td>${esc(prettyDate(c.created_at))}</td></tr>`;
+    }));
+}
+function renderOrders() {
+  const q=$("orderSearch").value.toLowerCase(), filter=$("orderFilter").value;
+  $("ordersTable").innerHTML=makeTable(["Order","Customer","Product","Total","Payment","Delivery","Actions"],
+    orders.filter(o=>(!filter||o.payment_status===filter)&&[o.order_number,o.product_name,o.customers?.full_name,o.customers?.phone].some(x=>String(x||"").toLowerCase().includes(q)))
+    .map(o=>`<tr><td>#${esc(o.order_number||o.id)}<br><small>${esc(prettyDate(o.ordered_at))}</small></td><td>${esc(o.customers?.full_name)}<br>${esc(o.customers?.phone)}</td><td>${esc(o.product_name)} × ${esc(o.quantity)}<br><small>Ref: ${esc(o.transaction_reference||"—")}</small></td><td>${money(o.total_amount)}</td><td>${badge(o.payment_status)}</td><td>${badge(o.delivery_status||"pending")}</td><td><div class="actions">${o.payment_status!=="paid"?`<button data-verify="${esc(o.id)}">Verify paid</button>`:""}${o.payment_status==="paid"&&o.delivery_status!=="delivered"?`<button class="secondary" data-deliver="${esc(o.id)}">Mark delivered</button>`:""}</div></td></tr>`));
+}
+function renderExpenses() {
+  $("expensesTable").innerHTML=makeTable(["Date","Category","Description","Amount","Method"],
+    expenses.map(e=>`<tr><td>${esc(e.expense_date)}</td><td>${esc(e.category)}</td><td>${esc(e.description)}</td><td>${money(e.amount)}</td><td>${esc(e.payment_method||"—")}</td></tr>`));
+}
+
+$("loginForm").addEventListener("submit",async e=>{
+  e.preventDefault();$("loginBtn").disabled=true;
+  try{
+    if(!db){
+      if(SUPABASE_URL.includes("PASTE_")||SUPABASE_KEY.includes("PASTE_")) throw new Error("Add your Supabase Project URL and public key in the settings near the bottom of this file.");
+      db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+    }
+    const {error}=await db.auth.signInWithPassword({email:$("email").value.trim(),password:$("password").value});
+    if(error) throw error;
+    await authorize();
+  }catch(err){showLoginMessage(err.message);}
+  finally{$("loginBtn").disabled=false;}
+});
+
+$("logoutBtn").addEventListener("click",async()=>{
+  if(db) await db.auth.signOut();
+  showLogin();
+});
+$("refreshBtn").addEventListener("click",refreshAll);
+$("nav").addEventListener("click",e=>{
+  const b=e.target.closest("[data-page]");
+  if(b) showPage(b.dataset.page);
+});
+document.addEventListener("click",async e=>{
+  const go=e.target.closest("[data-go]");
+  if(go) showPage(go.dataset.go);
+
+  const edit=e.target.closest("[data-edit-product]");
+  if(edit){
+    const p=products.find(x=>String(x.id)===edit.dataset.editProduct);
+    if(!p)return;
+    $("productId").value=p.id;
+    $("pName").value=p.name||"";
+    $("pPrice").value=p.price??0;
+    $("pCategory").value=p.category||"E-book";
+    $("pStatus").value=p.status||"active";
+    $("pDescription").value=p.description||"";
+    $("pImage").value=p.image_url||"";
+    $("pFile").value=p.file_url||"";
+    $("pNotes").value=p.notes||"";
+    $("saveProductBtn").textContent="Update product";
+    showPage("products");
+    window.scrollTo({top:0,behavior:"smooth"});
+  }
+
+  const toggle=e.target.closest("[data-toggle-product]");
+  if(toggle){
+    const p=products.find(x=>String(x.id)===toggle.dataset.toggleProduct);
+    if(!p)return;
+    const status=p.status==="active"?"inactive":"active";
+    const {error}=await db.from("products").update({status}).eq("id",p.id);
+    if(error)showMessage(error.message,"error");
+    else{await refreshAll();showMessage(status==="active"?"Product published.":"Product hidden from the connected catalogue.","success");}
+  }
+
+  const verify=e.target.closest("[data-verify]");
+  if(verify){
+    if(!confirm("Have you verified that the money was received in your UPI/bank app?"))return;
+    const id=verify.dataset.verify, now=new Date().toISOString();
+    const {error}=await db.from("orders").update({payment_status:"paid",order_status:"confirmed",paid_at:now}).eq("id",id);
+    if(error){showMessage(error.message,"error");return;}
+    await db.from("payments").update({status:"verified",verified_at:now}).eq("order_id",id);
+    await refreshAll();showMessage("Payment marked as paid. Deliver the files separately and then mark the order delivered.","success");
+  }
+
+  const deliver=e.target.closest("[data-deliver]");
+  if(deliver){
+    const id=deliver.dataset.deliver, now=new Date().toISOString();
+    const {error}=await db.from("orders").update({delivery_status:"delivered",delivered_at:now}).eq("id",id).eq("payment_status","paid");
+    if(error){showMessage(error.message,"error");return;}
+    await db.from("deliveries").insert({order_id:id,delivery_method:"WhatsApp",status:"sent",sent_at:now,tracking_note:"Marked delivered by admin"}).then(r=>{if(r.error)console.warn(r.error.message);});
+    await refreshAll();showMessage("Delivery status updated.","success");
+  }
+});
+
+$("productForm").addEventListener("submit",async e=>{
+  e.preventDefault();
+  const id=$("productId").value;
+  const product={
+    name:$("pName").value.trim(),
+    price:Number($("pPrice").value),
+    category:$("pCategory").value.trim()||"E-book",
+    status:$("pStatus").value,
+    description:$("pDescription").value.trim()||null
+  };
+  /* These two optional columns must exist in your products table to store these values.
+     If your schema doesn't have them, the other product fields still work. */
+  if($("pImage").value.trim()) product.image_url=$("pImage").value.trim();
+  if($("pFile").value.trim()) product.file_url=$("pFile").value.trim();
+  if($("pNotes").value.trim()) product.notes=$("pNotes").value.trim();
+
+  $("saveProductBtn").disabled=true;
+  try{
+    const result=id
+      ? await db.from("products").update(product).eq("id",id)
+      : await db.from("products").insert(product);
+    if(result.error)throw result.error;
+    clearProductForm();
+    await refreshAll();
+    showMessage("Product saved successfully. Published products are available to the public catalogue connected to this database.","success");
+  }catch(err){
+    showMessage("Could not save product: "+err.message+". Check whether the products table has these columns.","error");
+  }finally{$("saveProductBtn").disabled=false;}
+});
+$("clearProduct").addEventListener("click",clearProductForm);
+
+$("orderForm").addEventListener("submit",async e=>{
+  e.preventDefault();
+  try{
+    const p=products.find(x=>String(x.id)===$("oProduct").value);
+    if(!p)throw new Error("Select a product first.");
+    const phone=$("oPhone").value.trim(), name=$("oName").value.trim();
+    const email=$("oEmail").value.trim()||null;
+    let result=await db.from("customers").select("*").eq("phone",phone).maybeSingle();
+    if(result.error)throw result.error;
+    let customer=result.data;
+    if(customer){
+      result=await db.from("customers").update({full_name:name,email:email||customer.email}).eq("id",customer.id).select("*").single();
+    }else{
+      result=await db.from("customers").insert({full_name:name,phone,email,source:"Manual admin entry"}).select("*").single();
+    }
+    if(result.error)throw result.error;
+    customer=result.data;
+
+    const qty=Number($("oQuantity").value), total=qty*Number(p.price);
+    const status=$("oPaymentStatus").value, now=new Date().toISOString();
+    result=await db.from("orders").insert({
+      customer_id:customer.id,product_id:p.id,product_name:p.name,
+      quantity:qty,unit_price:Number(p.price),total_amount:total,
+      order_status:status==="paid"?"confirmed":"pending",
+      payment_status:status,payment_method:$("oMethod").value,
+      transaction_reference:$("oReference").value.trim()||null,
+      customer_message:$("oNotes").value.trim()||null,
+      ordered_at:now,paid_at:status==="paid"?now:null,
+      source:"Manual admin entry"
+    }).select("*").single();
+    if(result.error)throw result.error;
+    const order=result.data;
+    if(["submitted","paid"].includes(status)){
+      const payment=await db.from("payments").insert({
+        order_id:order.id,amount:total,payment_method:$("oMethod").value,
+        transaction_reference:$("oReference").value.trim()||null,
+        status:status==="paid"?"verified":"submitted",
+        verified_at:status==="paid"?now:null
+      });
+      if(payment.error)throw payment.error;
+    }
+    $("orderForm").reset();$("oQuantity").value=1;
+    await refreshAll();showPage("orders");
+    showMessage("Customer and order saved.","success");
+  }catch(err){showMessage("Could not save order: "+err.message,"error");}
+});
+
+$("expenseForm").addEventListener("submit",async e=>{
+  e.preventDefault();
+  const record={
+    expense_date:$("eDate").value,category:$("eCategory").value,
+    amount:Number($("eAmount").value),
+    payment_method:$("eMethod").value.trim()||null,
+    description:$("eDescription").value.trim(),
+    created_by:currentUser.id
+  };
+  const {error}=await db.from("business_expenses").insert(record);
+  if(error){showMessage("Could not save expense: "+error.message,"error");return;}
+  $("expenseForm").reset();$("eDate").value=localDate(new Date());
+  await refreshAll();showMessage("Expense saved.","success");
+});
+
+$("productSearch").addEventListener("input",renderProducts);
+$("customerSearch").addEventListener("input",renderCustomers);
+$("orderSearch").addEventListener("input",renderOrders);
+$("orderFilter").addEventListener("change",renderOrders);
+
+$("exportProducts").onclick=()=>downloadCSV("velora-products.csv",products);
+$("exportCustomers").onclick=()=>downloadCSV("velora-customers.csv",customers);
+$("exportOrders").onclick=()=>downloadCSV("velora-orders.csv",orders.map(o=>({
+  order_number:o.order_number,customer:o.customers?.full_name,
+  phone:o.customers?.phone,product:o.product_name,quantity:o.quantity,
+  total:o.total_amount,payment_status:o.payment_status,
+  delivery_status:o.delivery_status,reference:o.transaction_reference,
+  ordered_at:o.ordered_at,paid_at:o.paid_at
+})));
+$("exportExpenses").onclick=()=>downloadCSV("velora-expenses.csv",expenses);
+$("exportReport").onclick=()=>downloadCSV("velora-report.csv",orders.filter(o=>o.payment_status==="paid"));
+
+$("eDate").value=localDate(new Date());
+connect().catch(err=>showLoginMessage(err.message));
+</script>
+</body>
+</html>
