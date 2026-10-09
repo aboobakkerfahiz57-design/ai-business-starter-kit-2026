@@ -1,602 +1,349 @@
+ 
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="AI Business Starter Kit 2026 by Velora Digital — 100+ practical AI prompts, tools and workflows for small businesses, freelancers and entrepreneurs.">
-  <meta name="theme-color" content="#07101f">
-  <title>AI Business Starter Kit 2026 | Velora Digital</title>
-
-  <style>
-    :root{
-      --bg:#050914;
-      --bg2:#081225;
-      --card:rgba(13,24,43,.72);
-      --card2:rgba(10,19,35,.9);
-      --text:#f7f9ff;
-      --muted:#aeb9ca;
-      --line:rgba(255,255,255,.11);
-      --gold:#f4c76b;
-      --gold2:#ffe4a3;
-      --blue:#72a7ff;
-      --green:#5fe0a1;
-      --shadow:0 25px 80px rgba(0,0,0,.42);
-      --radius:24px;
-      --max:1180px;
-    }
-
-    *{box-sizing:border-box;margin:0;padding:0}
-    html{scroll-behavior:smooth}
-    body{
-      font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-      color:var(--text);
-      background:
-        radial-gradient(circle at 15% 15%,rgba(65,110,190,.14),transparent 30%),
-        radial-gradient(circle at 85% 45%,rgba(244,199,107,.09),transparent 30%),
-        var(--bg);
-      line-height:1.6;
-      overflow-x:hidden;
-    }
-    a{text-decoration:none;color:inherit}
-    button,input,textarea{font:inherit}
-    button{cursor:pointer}
-    .container{width:min(var(--max),92%);margin:auto}
-
-    /* NAV */
-    .nav{
-      position:fixed;top:0;left:0;right:0;z-index:1000;
-      background:rgba(5,9,20,.68);
-      backdrop-filter:blur(18px);
-      border-bottom:1px solid transparent;
-      transition:.3s;
-    }
-    .nav.scrolled{border-color:var(--line);background:rgba(5,9,20,.9)}
-    .nav-inner{
-      height:76px;display:flex;align-items:center;justify-content:space-between;gap:20px
-    }
-    .brand{display:flex;align-items:center;gap:11px;font-weight:800;letter-spacing:.04em}
-    .brand img{width:44px;height:44px;border-radius:12px;object-fit:cover}
-    .brand span{font-size:14px}
-    .nav-links{display:flex;align-items:center;gap:28px;color:#dbe3f1;font-size:14px}
-    .nav-links a{transition:.2s}
-    .nav-links a:hover{color:var(--gold)}
-    .nav-cta{
-      padding:11px 17px;border-radius:999px;background:linear-gradient(135deg,var(--gold2),var(--gold));
-      color:#14100a!important;font-weight:800;box-shadow:0 10px 30px rgba(244,199,107,.18)
-    }
-    .menu-btn{display:none;background:none;border:0;color:white;font-size:28px}
-
-    /* HERO */
-    .hero{
-      min-height:100vh;display:flex;align-items:center;position:relative;
-      padding:125px 0 75px;
-      background:
-        linear-gradient(90deg,rgba(4,8,18,.96) 0%,rgba(4,8,18,.79) 40%,rgba(4,8,18,.38) 100%),
-        linear-gradient(180deg,rgba(4,8,18,.2),rgba(4,8,18,.92)),
-        url("hero-background.png") center/cover no-repeat;
-    }
-    .hero:after{
-      content:"";position:absolute;inset:auto 0 0;height:180px;
-      background:linear-gradient(transparent,var(--bg));pointer-events:none
-    }
-    .hero-content{position:relative;z-index:2;max-width:760px}
-    .eyebrow{
-      display:inline-flex;align-items:center;gap:8px;
-      border:1px solid rgba(244,199,107,.28);background:rgba(244,199,107,.07);
-      padding:8px 13px;border-radius:999px;color:var(--gold2);font-size:12px;font-weight:800;
-      letter-spacing:.12em;text-transform:uppercase;margin-bottom:22px
-    }
-    .dot{width:7px;height:7px;border-radius:50%;background:var(--gold);box-shadow:0 0 15px var(--gold)}
-    h1{font-size:clamp(48px,7vw,88px);line-height:.94;letter-spacing:-.055em;margin-bottom:24px}
-    .gradient{background:linear-gradient(100deg,#fff,var(--gold2));-webkit-background-clip:text;background-clip:text;color:transparent}
-    .hero p{font-size:clamp(17px,2vw,20px);color:#d0d9e8;max-width:690px;margin-bottom:31px}
-    .price-row{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-bottom:27px}
-    .price{font-size:42px;font-weight:900;color:var(--gold2)}
-    .old{color:#7f8ba0;text-decoration:line-through}
-    .hero-actions{display:flex;gap:12px;flex-wrap:wrap}
-    .btn{
-      border:0;padding:15px 22px;border-radius:14px;font-weight:850;display:inline-flex;
-      align-items:center;justify-content:center;gap:9px;transition:.25s;min-height:52px
-    }
-    .btn-primary{background:linear-gradient(135deg,var(--gold2),var(--gold));color:#171107;box-shadow:0 14px 40px rgba(244,199,107,.2)}
-    .btn-primary:hover{transform:translateY(-3px);box-shadow:0 20px 50px rgba(244,199,107,.28)}
-    .btn-secondary{border:1px solid var(--line);background:rgba(255,255,255,.05);color:#fff}
-    .btn-secondary:hover{background:rgba(255,255,255,.1);transform:translateY(-2px)}
-    .trust{display:flex;gap:22px;flex-wrap:wrap;margin-top:28px;color:#aeb9ca;font-size:13px}
-    .trust span{display:flex;align-items:center;gap:7px}
-    .check{color:var(--green);font-weight:900}
-
-    /* COMMON */
-    section{padding:95px 0;position:relative}
-    .section-head{max-width:730px;margin-bottom:45px}
-    .kicker{color:var(--gold);font-size:12px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;margin-bottom:11px}
-    h2{font-size:clamp(32px,5vw,52px);line-height:1.03;letter-spacing:-.04em;margin-bottom:15px}
-    .section-head p{color:var(--muted);font-size:17px}
-    .grid{display:grid;gap:18px}
-    .grid-4{grid-template-columns:repeat(4,1fr)}
-    .grid-3{grid-template-columns:repeat(3,1fr)}
-    .grid-2{grid-template-columns:repeat(2,1fr)}
-
-    .card{
-      background:linear-gradient(145deg,rgba(18,32,55,.8),rgba(8,16,29,.8));
-      border:1px solid var(--line);border-radius:var(--radius);padding:27px;
-      box-shadow:var(--shadow);transition:.3s
-    }
-    .card:hover{transform:translateY(-5px);border-color:rgba(244,199,107,.25)}
-    .icon{
-      width:48px;height:48px;border-radius:15px;display:grid;place-items:center;
-      background:rgba(244,199,107,.1);border:1px solid rgba(244,199,107,.17);
-      font-size:22px;margin-bottom:18px
-    }
-    .card h3{font-size:19px;margin-bottom:8px}
-    .card p{color:var(--muted);font-size:14px}
-
-    /* PRODUCT */
-    .product-wrap{
-      display:grid;grid-template-columns:1.1fr .9fr;gap:28px;align-items:stretch
-    }
-    .feature-card{padding:38px}
-    .feature-list{list-style:none;display:grid;gap:14px;margin-top:24px}
-    .feature-list li{display:flex;gap:12px;color:#d9e1ee}
-    .feature-list b{color:white}
-    .side-price{display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center}
-    .side-price .big{font-size:62px;font-weight:950;color:var(--gold2);line-height:1}
-    .side-price small{color:var(--muted);margin:8px 0 25px}
-
-    /* PAYMENT */
-    .payment{
-      background:
-        radial-gradient(circle at 20% 20%,rgba(244,199,107,.1),transparent 32%),
-        linear-gradient(145deg,#0a1426,#060b16)
-    }
-    .payment-box{
-      display:grid;grid-template-columns:1fr 1fr;gap:35px;align-items:center;
-      border:1px solid rgba(244,199,107,.18);border-radius:30px;padding:40px;
-      background:rgba(255,255,255,.035);box-shadow:var(--shadow)
-    }
-    .qr{
-      width:min(310px,80vw);aspect-ratio:1;object-fit:contain;background:#fff;padding:12px;
-      border-radius:22px;margin:10px auto;display:block
-    }
-    .pay-steps{display:grid;gap:16px;margin:23px 0}
-    .pay-step{display:flex;gap:14px}
-    .num{
-      flex:0 0 32px;height:32px;border-radius:50%;display:grid;place-items:center;
-      background:var(--gold);color:#151008;font-weight:900
-    }
-    .pay-step div:last-child{color:#ccd6e5}
-    .note{font-size:12px;color:#8f9caf;margin-top:15px}
-    .wa{
-      background:#1fbf72;color:#fff!important
-    }
-    .wa:hover{background:#28d980;transform:translateY(-2px)}
-
-    /* FAQ */
-    .faq{display:grid;gap:12px;max-width:900px}
-    details{border:1px solid var(--line);border-radius:17px;background:rgba(255,255,255,.035);overflow:hidden}
-    summary{padding:20px 22px;cursor:pointer;font-weight:800;list-style:none}
-    summary::-webkit-details-marker{display:none}
-    details p{padding:0 22px 20px;color:var(--muted)}
-
-    /* CTA */
-    .final-cta{text-align:center;padding:100px 20px}
-    .final-cta p{color:var(--muted);max-width:650px;margin:0 auto 27px}
-
-    /* CHAT */
-    .chat-launch{
-      position:fixed;right:22px;bottom:22px;z-index:1200;width:60px;height:60px;border-radius:50%;
-      border:1px solid rgba(244,199,107,.35);background:linear-gradient(135deg,var(--gold2),var(--gold));
-      color:#171107;font-size:24px;box-shadow:0 16px 45px rgba(0,0,0,.45)
-    }
-    .chat{
-      position:fixed;right:22px;bottom:92px;width:min(380px,calc(100vw - 30px));height:540px;
-      z-index:1199;background:#081222;border:1px solid var(--line);border-radius:24px;
-      box-shadow:0 30px 90px rgba(0,0,0,.55);display:none;overflow:hidden
-    }
-    .chat.open{display:flex;flex-direction:column}
-    .chat-head{padding:17px 18px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
-    .chat-head strong{font-size:15px}
-    .chat-head small{display:block;color:#8491a5;font-size:11px;margin-top:2px}
-    .chat-close{border:0;background:none;color:#aeb9ca;font-size:22px}
-    .messages{flex:1;overflow:auto;padding:17px;display:flex;flex-direction:column;gap:10px}
-    .msg{max-width:86%;padding:11px 13px;border-radius:15px;font-size:13px;white-space:pre-wrap}
-    .bot{background:#111f34;color:#e5ebf5;align-self:flex-start;border-bottom-left-radius:5px}
-    .user{background:linear-gradient(135deg,var(--gold2),var(--gold));color:#181207;align-self:flex-end;border-bottom-right-radius:5px}
-    .quick{display:flex;gap:7px;overflow:auto;padding:0 13px 10px}
-    .quick button{white-space:nowrap;border:1px solid var(--line);background:#0e1b2e;color:#cfd9e7;border-radius:999px;padding:7px 10px;font-size:11px}
-    .chat-form{display:flex;gap:8px;padding:12px;border-top:1px solid var(--line)}
-    .chat-form input{flex:1;min-width:0;background:#0c192b;border:1px solid var(--line);color:#fff;border-radius:12px;padding:11px 12px;outline:none}
-    .chat-form button{width:45px;border:0;border-radius:12px;background:var(--gold);color:#171107;font-weight:900}
-
-    footer{border-top:1px solid var(--line);padding:35px 0;color:#7f8ca1;font-size:13px}
-    .footer-inner{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
-    .reveal{opacity:0;transform:translateY(22px);transition:.7s ease}
-    .reveal.visible{opacity:1;transform:none}
-
-    @media(max-width:950px){
-      .grid-4{grid-template-columns:repeat(2,1fr)}
-      .product-wrap,.payment-box{grid-template-columns:1fr}
-      .side-price{padding:35px}
-      .nav-links{display:none}
-      .menu-btn{display:block}
-      .nav-links.mobile{
-        position:absolute;top:76px;left:0;right:0;display:flex;flex-direction:column;
-        padding:22px;background:rgba(5,9,20,.97);border-bottom:1px solid var(--line)
-      }
-    }
-    @media(max-width:620px){
-      .nav-inner{height:68px}
-      .brand img{width:39px;height:39px}
-      .hero{padding-top:115px;min-height:850px;background-position:60% center}
-      h1{font-size:49px}
-      section{padding:70px 0}
-      .grid-4,.grid-3,.grid-2{grid-template-columns:1fr}
-      .feature-card,.payment-box{padding:25px}
-      .price{font-size:36px}
-      .side-price .big{font-size:54px}
-      .hero-actions .btn{width:100%}
-      .trust{gap:12px;flex-direction:column}
-      .chat{right:15px;bottom:88px}
-      .chat-launch{right:15px;bottom:15px}
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="AI Business Starter Kit 2026 and digital products by Velora Digital.">
+<meta name="theme-color" content="#07101f">
+<title>Velora Digital | Digital Products</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--bg:#050914;--bg2:#081225;--card:rgba(13,24,43,.82);--text:#f7f9ff;--muted:#aeb9ca;--line:rgba(255,255,255,.11);--gold:#f4c76b;--gold2:#ffe4a3;--green:#5fe0a1;--shadow:0 25px 80px rgba(0,0,0,.42);--radius:24px;--max:1180px}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 15% 15%,rgba(65,110,190,.14),transparent 30%),radial-gradient(circle at 85% 45%,rgba(244,199,107,.09),transparent 30%),var(--bg);line-height:1.6;overflow-x:hidden}
+a{text-decoration:none;color:inherit}
+button,input{font:inherit}
+button{cursor:pointer}
+.container{width:min(var(--max),92%);margin:auto}
+.nav{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(5,9,20,.75);backdrop-filter:blur(18px);border-bottom:1px solid transparent;transition:.3s}
+.nav.scrolled{border-color:var(--line);background:rgba(5,9,20,.95)}
+.nav-inner{height:76px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.brand{display:flex;align-items:center;gap:11px;font-weight:800;letter-spacing:.04em}
+.brand img{width:44px;height:44px;border-radius:12px;object-fit:cover}
+.brand span{font-size:14px}
+.nav-links{display:flex;align-items:center;gap:25px;color:#dbe3f1;font-size:14px}
+.nav-links a:hover{color:var(--gold)}
+.nav-cta{padding:11px 17px;border-radius:999px;background:linear-gradient(135deg,var(--gold2),var(--gold));color:#14100a!important;font-weight:800}
+.menu-btn{display:none;background:none;border:0;color:white;font-size:28px}
+.hero{min-height:95vh;display:flex;align-items:center;position:relative;padding:125px 0 75px;background:linear-gradient(90deg,rgba(4,8,18,.96),rgba(4,8,18,.79) 45%,rgba(4,8,18,.38)),linear-gradient(180deg,rgba(4,8,18,.15),rgba(4,8,18,.92)),url("hero-background.png") center/cover no-repeat}
+.hero:after{content:"";position:absolute;inset:auto 0 0;height:180px;background:linear-gradient(transparent,var(--bg));pointer-events:none}
+.hero-content{position:relative;z-index:2;max-width:760px}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(244,199,107,.28);background:rgba(244,199,107,.07);padding:8px 13px;border-radius:999px;color:var(--gold2);font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;margin-bottom:22px}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--gold);box-shadow:0 0 15px var(--gold)}
+h1{font-size:clamp(48px,7vw,88px);line-height:.98;letter-spacing:-.055em;margin-bottom:24px}
+.gradient{background:linear-gradient(100deg,#fff,var(--gold2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{font-size:clamp(17px,2vw,20px);color:#d0d9e8;max-width:690px;margin-bottom:25px}
+.price-row{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-bottom:27px}
+.price{font-size:42px;font-weight:900;color:var(--gold2)}
+.old{color:#7f8ba0}
+.hero-actions{display:flex;gap:12px;flex-wrap:wrap}
+.btn{border:0;padding:14px 21px;border-radius:14px;font-weight:850;display:inline-flex;align-items:center;justify-content:center;gap:9px;transition:.25s;min-height:50px}
+.btn-primary{background:linear-gradient(135deg,var(--gold2),var(--gold));color:#171107;box-shadow:0 14px 40px rgba(244,199,107,.2)}
+.btn-primary:hover{transform:translateY(-3px)}
+.btn-secondary{border:1px solid var(--line);background:rgba(255,255,255,.05);color:#fff}
+.trust{display:flex;gap:22px;flex-wrap:wrap;margin-top:28px;color:var(--muted);font-size:13px}
+.check{color:var(--green);font-weight:900}
+section{padding:85px 0;position:relative}
+.section-head{max-width:760px;margin-bottom:38px}
+.kicker{color:var(--gold);font-size:12px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;margin-bottom:11px}
+h2{font-size:clamp(32px,5vw,52px);line-height:1.08;letter-spacing:-.04em;margin-bottom:15px}
+.section-head p{color:var(--muted);font-size:17px}
+.grid{display:grid;gap:18px}
+.grid-4{grid-template-columns:repeat(4,1fr)}
+.grid-3{grid-template-columns:repeat(3,1fr)}
+.grid-2{grid-template-columns:repeat(2,1fr)}
+.card{background:linear-gradient(145deg,rgba(18,32,55,.86),rgba(8,16,29,.86));border:1px solid var(--line);border-radius:var(--radius);padding:25px;box-shadow:var(--shadow);transition:.3s;min-width:0}
+.card:hover{transform:translateY(-4px);border-color:rgba(244,199,107,.3)}
+.icon{width:48px;height:48px;border-radius:15px;display:grid;place-items:center;background:rgba(244,199,107,.1);border:1px solid rgba(244,199,107,.17);font-size:22px;margin-bottom:18px}
+.card h3{font-size:19px;margin-bottom:8px}
+.card p{color:var(--muted);font-size:14px}
+.product-price{font-size:27px;font-weight:900;color:var(--gold2);margin:15px 0}
+.product-category{color:var(--gold);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.1em}
+.product-image{width:100%;height:180px;object-fit:cover;border-radius:15px;margin-bottom:17px;background:#0a1426}
+.product-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.product-actions .btn{flex:1}
+.status-message{border:1px solid var(--line);padding:16px;border-radius:14px;color:var(--muted);background:rgba(255,255,255,.025);margin:15px 0}
+.payment{background:radial-gradient(circle at 20% 20%,rgba(244,199,107,.1),transparent 32%),linear-gradient(145deg,#0a1426,#060b16)}
+.payment-box{display:grid;grid-template-columns:1fr 1fr;gap:35px;align-items:center;border:1px solid rgba(244,199,107,.18);border-radius:30px;padding:35px;background:rgba(255,255,255,.035);box-shadow:var(--shadow)}
+.qr{width:min(310px,80vw);aspect-ratio:1;object-fit:contain;background:#fff;padding:12px;border-radius:22px;margin:10px auto;display:block}
+.pay-steps{display:grid;gap:16px;margin:23px 0}
+.pay-step{display:flex;gap:14px;color:#ccd6e5}
+.num{flex:0 0 32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--gold);color:#151008;font-weight:900}
+.note{font-size:12px;color:#8f9caf;margin-top:15px}
+.wa{background:#1fbf72;color:white!important}
+.faq{display:grid;gap:12px;max-width:900px}
+details{border:1px solid var(--line);border-radius:17px;background:rgba(255,255,255,.035);overflow:hidden}
+summary{padding:20px 22px;cursor:pointer;font-weight:800}
+details p{padding:0 22px 20px;color:var(--muted)}
+.final-cta{text-align:center;padding:90px 20px}
+.final-cta p{color:var(--muted);max-width:650px;margin:0 auto 27px}
+.chat-launch{position:fixed;right:22px;bottom:22px;z-index:1200;width:60px;height:60px;border-radius:50%;border:1px solid rgba(244,199,107,.35);background:linear-gradient(135deg,var(--gold2),var(--gold));color:#171107;font-size:24px;box-shadow:0 16px 45px rgba(0,0,0,.45)}
+.chat{position:fixed;right:22px;bottom:92px;width:min(380px,calc(100vw - 30px));height:540px;z-index:1199;background:#081222;border:1px solid var(--line);border-radius:24px;box-shadow:0 30px 90px rgba(0,0,0,.55);display:none;overflow:hidden}
+.chat.open{display:flex;flex-direction:column}
+.chat-head{padding:17px 18px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+.chat-head small{display:block;color:#8491a5;font-size:11px}
+.chat-close{border:0;background:none;color:#aeb9ca;font-size:22px}
+.messages{flex:1;overflow:auto;padding:17px;display:flex;flex-direction:column;gap:10px}
+.msg{max-width:86%;padding:11px 13px;border-radius:15px;font-size:13px;white-space:pre-wrap}
+.bot{background:#111f34;color:#e5ebf5;align-self:flex-start}
+.user{background:linear-gradient(135deg,var(--gold2),var(--gold));color:#181207;align-self:flex-end}
+.quick{display:flex;gap:7px;overflow:auto;padding:0 13px 10px}
+.quick button{white-space:nowrap;border:1px solid var(--line);background:#0e1b2e;color:#cfd9e7;border-radius:999px;padding:7px 10px;font-size:11px}
+.chat-form{display:flex;gap:8px;padding:12px;border-top:1px solid var(--line)}
+.chat-form input{flex:1;min-width:0;background:#0c192b;border:1px solid var(--line);color:white;border-radius:12px;padding:11px}
+.chat-form button{width:45px;border:0;border-radius:12px;background:var(--gold);color:#171107}
+footer{border-top:1px solid var(--line);padding:35px 0;color:#7f8ca1;font-size:13px}
+.footer-inner{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.reveal{opacity:0;transform:translateY(20px);transition:.7s ease}
+.reveal.visible{opacity:1;transform:none}
+@media(max-width:950px){.grid-4{grid-template-columns:repeat(2,1fr)}.grid-3{grid-template-columns:repeat(2,1fr)}.product-wrap,.payment-box{grid-template-columns:1fr}.nav-links{display:none}.menu-btn{display:block}.nav-links.mobile{position:absolute;top:76px;left:0;right:0;display:flex;flex-direction:column;padding:22px;background:rgba(5,9,20,.98);border-bottom:1px solid var(--line)}}
+@media(max-width:620px){.nav-inner{height:68px}.brand img{width:39px;height:39px}.hero{padding-top:115px;min-height:800px;background-position:60% center}h1{font-size:47px}section{padding:65px 0}.grid-4,.grid-3,.grid-2{grid-template-columns:1fr}.payment-box{padding:23px}.price{font-size:36px}.hero-actions .btn{width:100%}.trust{gap:12px;flex-direction:column}.chat{right:15px;bottom:88px}.chat-launch{right:15px;bottom:15px}}
+</style>
 </head>
-
 <body>
 
-  <header class="nav" id="navbar">
-    <div class="container nav-inner">
-      <a class="brand" href="#top" aria-label="Velora Digital home">
-        <img src="logo.png" alt="AI Business Starter Kit 2026 logo">
-        <span>VELORA DIGITAL</span>
-      </a>
+<header class="nav" id="navbar">
+ <div class="container nav-inner">
+  <a class="brand" href="#top"><img src="logo.png" alt="Velora Digital logo"><span>VELORA DIGITAL</span></a>
+  <nav class="nav-links" id="navLinks">
+   <a href="#inside">What's Inside</a><a href="#who">Who It's For</a><a href="#catalogue">Products</a><a href="#payment">Payment</a><a href="#faq">FAQ</a>
+   <a class="nav-cta" href="#catalogue">EXPLORE PRODUCTS</a>
+  </nav>
+  <button class="menu-btn" id="menuBtn" aria-label="Open menu">☰</button>
+ </div>
+</header>
 
-      <nav class="nav-links" id="navLinks">
-        <a href="#inside">What's Inside</a>
-        <a href="#who">Who It's For</a>
-        <a href="#payment">Payment</a>
-        <a href="#faq">FAQ</a>
-        <a class="nav-cta" href="#payment">GET THE KIT — ₹599</a>
-      </nav>
-
-      <button class="menu-btn" id="menuBtn" aria-label="Open menu">☰</button>
-    </div>
-  </header>
-
-  <main id="top">
-
-    <!-- HERO -->
-    <section class="hero">
-      <div class="container">
-        <div class="hero-content reveal">
-          <div class="eyebrow"><span class="dot"></span> Practical AI for Real Business</div>
-          <h1>AI BUSINESS<br><span class="gradient">STARTER KIT 2026</span></h1>
-          <p>
-            100+ practical AI prompts, tools and workflows designed to help
-            small businesses, freelancers and entrepreneurs save time,
-            create better content, improve sales and work smarter.
-          </p>
-
-          <div class="price-row">
-            <div class="price">₹599</div>
-            <div class="old">One-time purchase</div>
-          </div>
-
-          <div class="hero-actions">
-            <a class="btn btn-primary" href="#payment">GET THE KIT — ₹599 →</a>
-            <a class="btn btn-secondary" href="#inside">EXPLORE THE KIT</a>
-          </div>
-
-          <div class="trust">
-            <span><b class="check">✓</b> 100+ practical prompts</span>
-            <span><b class="check">✓</b> 50 bonus prompts</span>
-            <span><b class="check">✓</b> Beginner friendly</span>
-            <span><b class="check">✓</b> Instant digital product</span>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- INSIDE -->
-    <section id="inside">
-      <div class="container">
-        <div class="section-head reveal">
-          <div class="kicker">What's inside</div>
-          <h2>Everything you need to start using AI for business.</h2>
-          <p>You don't need to be an AI expert. Choose a goal, copy a prompt, add your business details and take action.</p>
-        </div>
-
-        <div class="grid grid-4">
-          <div class="card reveal"><div class="icon">🧠</div><h3>Business & Strategy</h3><p>Plan your business, customers, offers, goals, positioning and growth strategy.</p></div>
-          <div class="card reveal"><div class="icon">📣</div><h3>Marketing</h3><p>Create campaigns, content calendars, Instagram ideas, ads and promotional strategies.</p></div>
-          <div class="card reveal"><div class="icon">💬</div><h3>Sales & Customers</h3><p>Generate sales scripts, follow-ups, proposals, customer replies and retention ideas.</p></div>
-          <div class="card reveal"><div class="icon">⚙️</div><h3>Productivity</h3><p>Build workflows, SOPs, daily plans, automation ideas and AI-powered business systems.</p></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- PRODUCT -->
-    <section id="product">
-      <div class="container">
-        <div class="product-wrap">
-          <div class="card feature-card reveal">
-            <div class="kicker">The complete kit</div>
-            <h2>Built for people who want to actually use AI.</h2>
-            <ul class="feature-list">
-              <li><span class="check">✓</span><span><b>100+ ready-to-use prompts</b><br>Practical prompts covering real business situations.</span></li>
-              <li><span class="check">✓</span><span><b>50 bonus prompts</b><br>Extra prompts for growth, marketing, sales and productivity.</span></li>
-              <li><span class="check">✓</span><span><b>START HERE guide</b><br>Simple instructions for using the kit effectively.</span></li>
-              <li><span class="check">✓</span><span><b>Beginner friendly</b><br>No programming or advanced AI knowledge required.</span></li>
-              <li><span class="check">✓</span><span><b>2026-focused</b><br>Designed as a practical business starter resource.</span></li>
-            </ul>
-          </div>
-
-          <div class="card side-price reveal">
-            <div class="kicker">Get access</div>
-            <div class="big">₹599</div>
-            <small>One-time payment</small>
-            <a class="btn btn-primary" href="#payment">BUY THE KIT NOW</a>
-            <p class="note">After payment, send your payment screenshot on WhatsApp for verification and delivery.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- WHO -->
-    <section id="who">
-      <div class="container">
-        <div class="section-head reveal">
-          <div class="kicker">Who is this for?</div>
-          <h2>Made for practical business use.</h2>
-          <p>Use the prompts as your AI starting point for everyday business work.</p>
-        </div>
-
-        <div class="grid grid-3">
-          <div class="card reveal"><div class="icon">🏪</div><h3>Small Business Owners</h3><p>Marketing, customer communication, offers, planning and everyday operations.</p></div>
-          <div class="card reveal"><div class="icon">💻</div><h3>Freelancers</h3><p>Find clients, create proposals, build a portfolio and improve your service business.</p></div>
-          <div class="card reveal"><div class="icon">🚀</div><h3>Entrepreneurs</h3><p>Turn ideas into plans, strategies, content, systems and actionable business tasks.</p></div>
-          <div class="card reveal"><div class="icon">📱</div><h3>Content Creators</h3><p>Generate hooks, captions, reels, content calendars and social-media ideas.</p></div>
-          <div class="card reveal"><div class="icon">🧑‍💼</div><h3>Sales Teams</h3><p>Prepare scripts, objection handling, follow-ups, proposals and customer messages.</p></div>
-          <div class="card reveal"><div class="icon">🌱</div><h3>AI Beginners</h3><p>A simple starting point for learning how to give AI useful business instructions.</p></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- HOW IT WORKS -->
-    <section>
-      <div class="container">
-        <div class="section-head reveal">
-          <div class="kicker">How it works</div>
-          <h2>Start in minutes.</h2>
-        </div>
-
-        <div class="grid grid-4">
-          <div class="card reveal"><div class="icon">01</div><h3>Choose a goal</h3><p>Decide what business problem you want AI to help you solve.</p></div>
-          <div class="card reveal"><div class="icon">02</div><h3>Copy a prompt</h3><p>Find the relevant prompt inside the kit and copy it.</p></div>
-          <div class="card reveal"><div class="icon">03</div><h3>Add your details</h3><p>Replace the information inside brackets with your own details.</p></div>
-          <div class="card reveal"><div class="icon">04</div><h3>Take action</h3><p>Review the result, improve it and turn it into a real business action.</p></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- PAYMENT -->
-    <section class="payment" id="payment">
-      <div class="container">
-        <div class="payment-box reveal">
-          <div>
-            <div class="kicker">Secure direct payment</div>
-            <h2>Get the AI Business Starter Kit 2026.</h2>
-            <p style="color:var(--muted);font-size:16px">
-              Pay ₹599 using the PhonePe QR code. Then send your payment screenshot
-              on WhatsApp. We will verify the payment and send the complete customer package.
-            </p>
-
-            <div class="pay-steps">
-              <div class="pay-step"><span class="num">1</span><div><b>Scan the QR</b><br>Open your UPI/PhonePe app and scan the QR code.</div></div>
-              <div class="pay-step"><span class="num">2</span><div><b>Pay ₹599</b><br>Complete the payment and keep the successful payment screenshot.</div></div>
-              <div class="pay-step"><span class="num">3</span><div><b>Send screenshot</b><br>Open WhatsApp and attach the payment screenshot before sending.</div></div>
-              <div class="pay-step"><span class="num">4</span><div><b>Receive your kit</b><br>After verification, the four PDF files will be sent to you.</div></div>
-            </div>
-
-            <a
-              class="btn wa"
-              target="_blank"
-              rel="noopener"
-              href="https://wa.me/918088590273?text=Hi%20Velora%20Digital%2C%20I%20have%20paid%20%E2%82%B9599%20for%20the%20AI%20Business%20Starter%20Kit%202026.%20I%20am%20attaching%20my%20payment%20screenshot.%20Please%20verify%20my%20payment%20and%20send%20me%20the%20complete%20kit.%20Thank%20you."
-            >💬 SEND PAYMENT SCREENSHOT ON WHATSAPP</a>
-
-            <p class="note">WhatsApp will open with a prepared message. The customer must attach the payment screenshot and press Send.</p>
-          </div>
-
-          <div>
-            <img class="qr" src="phonepe-qr.jpg" alt="PhonePe QR code for ₹599 payment">
-            <p style="text-align:center;color:#aeb9ca;font-size:13px">Scan to pay ₹599</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- FAQ -->
-    <section id="faq">
-      <div class="container">
-        <div class="section-head reveal">
-          <div class="kicker">FAQ</div>
-          <h2>Questions before you buy?</h2>
-        </div>
-
-        <div class="faq">
-          <details class="reveal"><summary>What exactly do I receive?</summary><p>You receive four PDF files: the main AI Business Starter Kit 2026, the 50-prompt Bonus AI Prompt Pack, the START HERE guide and the README file.</p></details>
-          <details class="reveal"><summary>Do I need coding knowledge?</summary><p>No. The kit is designed for small businesses, freelancers, entrepreneurs and beginners. You can use the prompts with ChatGPT or another suitable AI assistant.</p></details>
-          <details class="reveal"><summary>How much does it cost?</summary><p>The complete kit is ₹599 as a one-time purchase.</p></details>
-          <details class="reveal"><summary>How do I receive the files?</summary><p>After you pay, send your payment screenshot on WhatsApp. Once the payment is manually verified, the complete customer package will be sent to you on WhatsApp.</p></details>
-          <details class="reveal"><summary>Can AI answers be trusted without checking?</summary><p>No. Always review and verify AI-generated information, especially for important business, financial, legal, medical or other high-impact decisions.</p></details>
-          <details class="reveal"><summary>Can I use the prompts for my business?</summary><p>Yes. The prompts and ideas are intended for your own business, projects, learning and content creation, subject to the usage terms included in the e-book.</p></details>
-        </div>
-      </div>
-    </section>
-
-    <!-- FINAL CTA -->
-    <section class="final-cta">
-      <div class="container reveal">
-        <div class="kicker">Ready to start?</div>
-        <h2>Turn AI into a practical business assistant.</h2>
-        <p>Start with one problem. Use one prompt. Improve the result. Then take action.</p>
-        <a class="btn btn-primary" href="#payment">GET THE KIT — ₹599 →</a>
-      </div>
-    </section>
-
-  </main>
-
-  <footer>
-    <div class="container footer-inner">
-      <div>© 2026 Velora Digital. All rights reserved.</div>
-      <div>AI Business Starter Kit 2026 · ₹599</div>
-    </div>
-  </footer>
-
-  <!-- AI BUSINESS ASSISTANT -->
-  <button class="chat-launch" id="chatLaunch" aria-label="Open AI assistant">✦</button>
-
-  <div class="chat" id="chatBox" aria-label="Velora Digital AI assistant">
-    <div class="chat-head">
-      <div>
-        <strong>Velora AI Assistant</strong>
-        <small>AI Business Starter Kit 2026</small>
-      </div>
-      <button class="chat-close" id="chatClose" aria-label="Close assistant">×</button>
-    </div>
-
-    <div class="messages" id="messages"></div>
-
-    <div class="quick">
-      <button data-q="What is this kit?">What is this?</button>
-      <button data-q="Is it useful for my business?">Is it useful?</button>
-      <button data-q="What do I receive?">What do I receive?</button>
-      <button data-q="How do I buy?">How do I buy?</button>
-    </div>
-
-    <form class="chat-form" id="chatForm">
-      <input id="chatInput" autocomplete="off" placeholder="Ask about the kit..." maxlength="300">
-      <button type="submit" aria-label="Send">➤</button>
-    </form>
+<main id="top">
+<section class="hero">
+ <div class="container">
+  <div class="hero-content reveal">
+   <div class="eyebrow"><span class="dot"></span> Practical Digital Products</div>
+   <h1>BUILD SMARTER.<br><span class="gradient">GROW FASTER.</span></h1>
+   <p>Explore practical digital resources for entrepreneurs, small businesses, freelancers and creators. Find the right tools to help you work smarter.</p>
+   <div class="price-row"><div class="price" id="heroPrice">Explore the collection</div></div>
+   <div class="hero-actions"><a class="btn btn-primary" href="#catalogue">EXPLORE PRODUCTS →</a><a class="btn btn-secondary" href="#inside">WHY VELORA DIGITAL?</a></div>
+   <div class="trust"><span><b class="check">✓</b> Practical resources</span><span><b class="check">✓</b> Digital products</span><span><b class="check">✓</b> Beginner friendly</span></div>
   </div>
+ </div>
+</section>
 
-  <script>
-    /* NAV */
-    const navbar = document.getElementById("navbar");
-    window.addEventListener("scroll", () => {
-      navbar.classList.toggle("scrolled", window.scrollY > 20);
-    });
+<section id="inside">
+ <div class="container">
+  <div class="section-head reveal"><div class="kicker">Why Velora Digital</div><h2>Useful resources for real business work.</h2><p>Explore resources designed to help you plan, market, sell, create and improve your everyday business workflow.</p></div>
+  <div class="grid grid-4">
+   <div class="card reveal"><div class="icon">🧠</div><h3>Business & Strategy</h3><p>Plan your business, understand customers and develop better offers.</p></div>
+   <div class="card reveal"><div class="icon">📣</div><h3>Marketing</h3><p>Create campaigns, content calendars and promotional strategies.</p></div>
+   <div class="card reveal"><div class="icon">💬</div><h3>Sales & Customers</h3><p>Improve sales scripts, follow-ups, proposals and customer replies.</p></div>
+   <div class="card reveal"><div class="icon">⚙️</div><h3>Productivity</h3><p>Build workflows, daily plans and more organised business systems.</p></div>
+  </div>
+ </div>
+</section>
 
-    const menuBtn = document.getElementById("menuBtn");
-    const navLinks = document.getElementById("navLinks");
-    menuBtn.addEventListener("click", () => navLinks.classList.toggle("mobile"));
-    navLinks.querySelectorAll("a").forEach(a => {
-      a.addEventListener("click", () => navLinks.classList.remove("mobile"));
-    });
+<section id="catalogue">
+ <div class="container">
+  <div class="section-head reveal"><div class="kicker">Our catalogue</div><h2>Explore digital products.</h2><p>Products published by Velora Digital appear here automatically. Check the details and price, then contact us to purchase.</p></div>
+  <div id="catalogueStatus" class="status-message">Loading published products...</div>
+  <div id="productGrid" class="grid grid-3"></div>
+ </div>
+</section>
 
-    /* REVEAL ANIMATION */
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if(entry.isIntersecting){
-          entry.target.classList.add("visible");
-          observer.unobserve(entry.target);
-        }
-      });
-    }, {threshold:.08});
-    document.querySelectorAll(".reveal").forEach(el => observer.observe(el));
+<section id="who">
+ <div class="container">
+  <div class="section-head reveal"><div class="kicker">Who it's for</div><h2>Made for practical business use.</h2><p>Explore resources for your business, freelancing, content creation or learning journey.</p></div>
+  <div class="grid grid-3">
+   <div class="card reveal"><div class="icon">🏪</div><h3>Small Business Owners</h3><p>Marketing, communication, offers and business planning.</p></div>
+   <div class="card reveal"><div class="icon">💻</div><h3>Freelancers</h3><p>Find clients, prepare proposals and improve your services.</p></div>
+   <div class="card reveal"><div class="icon">🚀</div><h3>Entrepreneurs</h3><p>Turn ideas into plans, systems and actionable tasks.</p></div>
+   <div class="card reveal"><div class="icon">📱</div><h3>Content Creators</h3><p>Develop hooks, captions, reels and content ideas.</p></div>
+   <div class="card reveal"><div class="icon">🧑‍💼</div><h3>Sales Teams</h3><p>Prepare follow-ups, proposals and customer messages.</p></div>
+   <div class="card reveal"><div class="icon">🌱</div><h3>AI Beginners</h3><p>A simple starting point for practical AI-assisted work.</p></div>
+  </div>
+ </div>
+</section>
 
-    /* CHAT ASSISTANT */
-    const chatLaunch = document.getElementById("chatLaunch");
-    const chatBox = document.getElementById("chatBox");
-    const chatClose = document.getElementById("chatClose");
-    const messages = document.getElementById("messages");
-    const chatForm = document.getElementById("chatForm");
-    const chatInput = document.getElementById("chatInput");
+<section class="payment" id="payment">
+ <div class="container">
+  <div class="payment-box reveal">
+   <div>
+    <div class="kicker">Direct payment</div><h2>Ready to purchase?</h2>
+    <p style="color:var(--muted)">Choose a product from the catalogue, scan the PhonePe QR code if the product uses this payment method, then send your payment screenshot on WhatsApp. Please confirm the price and product name with us.</p>
+    <div class="pay-steps">
+     <div class="pay-step"><span class="num">1</span><div><b>Choose a product</b><br>Select an item from our catalogue.</div></div>
+     <div class="pay-step"><span class="num">2</span><div><b>Make the payment</b><br>Use the provided QR code and verify the amount before paying.</div></div>
+     <div class="pay-step"><span class="num">3</span><div><b>Send the screenshot</b><br>Attach your payment screenshot on WhatsApp.</div></div>
+     <div class="pay-step"><span class="num">4</span><div><b>Receive your product</b><br>Delivery follows payment verification.</div></div>
+    </div>
+    <a class="btn wa" target="_blank" rel="noopener" href="https://wa.me/918088590273?text=Hi%20Velora%20Digital%2C%20I%20would%20like%20to%20purchase%20a%20digital%20product.%20Please%20confirm%20the%20product%20and%20price.">💬 CONTACT ON WHATSAPP</a>
+    <p class="note">Attach the payment screenshot yourself and press Send in WhatsApp. Payment is manually verified.</p>
+   </div>
+   <div><img class="qr" src="phonepe-qr.jpg" alt="PhonePe payment QR code"><p style="text-align:center;color:var(--muted);font-size:13px">Confirm the correct amount before paying.</p></div>
+  </div>
+ </div>
+</section>
 
-    function addMessage(text, type){
-      const div = document.createElement("div");
-      div.className = "msg " + type;
-      div.textContent = text;
-      messages.appendChild(div);
-      messages.scrollTop = messages.scrollHeight;
-    }
+<section id="faq">
+ <div class="container">
+  <div class="section-head reveal"><div class="kicker">FAQ</div><h2>Questions before you buy?</h2></div>
+  <div class="faq">
+   <details class="reveal"><summary>Where do I see available products?</summary><p>Published products are displayed in the catalogue section of this website.</p></details>
+   <details class="reveal"><summary>How do I purchase a product?</summary><p>Choose a product, contact Velora Digital on WhatsApp and confirm the price and payment instructions before paying.</p></details>
+   <details class="reveal"><summary>When will I receive my files?</summary><p>Digital files are delivered after the payment has been verified.</p></details>
+   <details class="reveal"><summary>Why is the catalogue empty?</summary><p>The catalogue needs a working Supabase connection and at least one product with its status set to active. Please try again later if the connection is temporarily unavailable.</p></details>
+  </div>
+ </div>
+</section>
 
-    function assistantReply(input){
-      const q = input.toLowerCase().trim();
+<section class="final-cta">
+ <div class="container reveal"><div class="kicker">Ready to start?</div><h2>Find your next useful resource.</h2><p style="color:var(--muted);margin-bottom:25px">Explore our current collection of digital products.</p><a class="btn btn-primary" href="#catalogue">EXPLORE PRODUCTS →</a></div>
+</section>
+</main>
 
-      if(!q) return "Please type a question and I'll help you.";
+<footer><div class="container footer-inner"><div>© 2026 Velora Digital. All rights reserved.</div><div>Digital Products · Business Resources</div></div></footer>
 
-      if(q.includes("price") || q.includes("cost") || q.includes("₹599") || q.includes("599")){
-        return "The AI Business Starter Kit 2026 costs ₹599 as a one-time payment. You can pay using the PhonePe QR code in the Payment section.";
-      }
+<button class="chat-launch" id="chatLaunch" aria-label="Open assistant">✦</button>
+<div class="chat" id="chatBox" aria-label="Velora Digital assistant">
+ <div class="chat-head"><div><strong>Velora Digital Assistant</strong><small>Product information and support</small></div><button class="chat-close" id="chatClose" aria-label="Close">×</button></div>
+ <div class="messages" id="messages"></div>
+ <div class="quick"><button data-q="What products do you sell?">Products</button><button data-q="How do I buy?">How to buy</button><button data-q="How do I get my files?">Delivery</button></div>
+ <form class="chat-form" id="chatForm"><input id="chatInput" autocomplete="off" placeholder="Ask about our products..." maxlength="300"><button type="submit" aria-label="Send">➤</button></form>
+</div>
 
-      if(q.includes("what") && (q.includes("kit") || q.includes("book"))){
-        return "The AI Business Starter Kit 2026 is a practical collection of 100+ AI prompts, tools and workflows for small businesses, freelancers and entrepreneurs. It also includes a 50-prompt bonus pack.";
-      }
+<script>
+/* SETUP: Use the Supabase Project URL and PUBLIC publishable key.
+   Never put a secret/service-role key in public website code. */
+const SUPABASE_URL = "PASTE_PROJECT_URL_HERE";
+const SUPABASE_KEY = "PASTE_PUBLIC_PUBLISHABLE_OR_ANON_KEY_HERE";
+const WHATSAPP_NUMBER = "918088590273";
 
-      if(q.includes("receive") || q.includes("get") || q.includes("files") || q.includes("pdf")){
-        return "You receive 4 PDFs: the main AI Business Starter Kit, the 50-prompt Bonus AI Prompt Pack, START HERE, and README.";
-      }
+const $ = id => document.getElementById(id);
+let supabaseClient = null;
+let products = [];
 
-      if(q.includes("business") || q.includes("useful") || q.includes("use") || q.includes("help")){
-        return "Yes. The kit covers business strategy, marketing, Instagram content, sales, customer communication, websites, SEO, productivity, workflows and more. Tell me your business type and I can suggest which areas to start with.";
-      }
+function esc(value) {
+ return String(value ?? "").replace(/[&<>"']/g, c => ({
+  "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+ }[c]));
+}
+function money(value) {
+ return new Intl.NumberFormat("en-IN", {
+  style:"currency",currency:"INR",maximumFractionDigits:2
+ }).format(Number(value || 0));
+}
+function showCatalogueMessage(text) {
+ $("catalogueStatus").textContent = text;
+ $("catalogueStatus").style.display = "block";
+}
+function whatsappLink(product) {
+ const message = `Hi Velora Digital, I am interested in ${product.name}, listed at ${money(product.price)}. Please confirm availability and payment instructions.`;
+ return "https://wa.me/" + WHATSAPP_NUMBER + "?text=" + encodeURIComponent(message);
+}
+function renderProducts() {
+ const grid = $("productGrid");
+ grid.innerHTML = "";
+ if (!products.length) {
+  showCatalogueMessage("No products are currently published. Please check back soon.");
+  return;
+ }
+ $("catalogueStatus").style.display = "none";
+ products.forEach(product => {
+  const card = document.createElement("article");
+  card.className = "card reveal";
+  const imageUrl = product.image_url || "";
+  const image = imageUrl
+   ? `<img class="product-image" src="${esc(imageUrl)}" alt="${esc(product.name)}" loading="lazy" onerror="this.style.display='none'">`
+   : `<div class="icon">📘</div>`;
+  card.innerHTML = `
+   ${image}
+   <div class="product-category">${esc(product.category || "Digital Product")}</div>
+   <h3>${esc(product.name)}</h3>
+   <p>${esc(product.description || "A digital resource from Velora Digital.")}</p>
+   <div class="product-price">${money(product.price)}</div>
+   <div class="product-actions">
+    <a class="btn btn-primary" target="_blank" rel="noopener" href="${whatsappLink(product)}">Enquire / Buy</a>
+   </div>`;
+  grid.appendChild(card);
+  observer.observe(card);
+ });
+}
+async function loadProducts() {
+ if (SUPABASE_URL.includes("PASTE_") || SUPABASE_KEY.includes("PASTE_")) {
+  showCatalogueMessage("The product catalogue is not connected yet. Add your Supabase Project URL and public publishable key in this file.");
+  return;
+ }
+ try {
+  if (!supabaseClient) {
+   supabaseClient = window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+  }
+  const {data,error} = await supabaseClient
+   .from("products")
+   .select("id,name,price,category,status,description,image_url")
+   .eq("status","active")
+   .order("created_at",{ascending:false});
+  if (error) throw error;
+  products = data || [];
+  renderProducts();
+ } catch (error) {
+  console.error("Catalogue error:",error);
+  showCatalogueMessage("We couldn't load products right now. Please refresh the page or contact Velora Digital on WhatsApp.");
+ }
+}
 
-      if(q.includes("freelanc")){
-        return "For freelancers, start with prompts for finding clients, proposals, sales scripts, portfolios, case studies and service offers.";
-      }
+/* Navigation */
+const navbar = $("navbar");
+window.addEventListener("scroll",()=>navbar.classList.toggle("scrolled",window.scrollY>20));
+$("menuBtn").addEventListener("click",()=>$("navLinks").classList.toggle("mobile"));
+$("navLinks").querySelectorAll("a").forEach(a=>a.addEventListener("click",()=>$("navLinks").classList.remove("mobile")));
 
-      if(q.includes("marketing") || q.includes("instagram") || q.includes("social")){
-        return "For marketing, the kit includes prompts for campaigns, content strategies, 30-day calendars, Instagram reels, captions, hooks, ads and local marketing.";
-      }
+/* Scroll reveal */
+const observer = new IntersectionObserver(entries=>{
+ entries.forEach(entry=>{
+  if(entry.isIntersecting){entry.target.classList.add("visible");observer.unobserve(entry.target);}
+ });
+},{threshold:.08});
+document.querySelectorAll(".reveal").forEach(el=>observer.observe(el));
 
-      if(q.includes("sales") || q.includes("customer") || q.includes("lead")){
-        return "For sales, use prompts for lead generation, sales scripts, objection handling, follow-ups, proposals, customer FAQs, retention and review requests.";
-      }
+/* Simple product-support assistant */
+const messages = $("messages");
+function addMessage(text,type) {
+ const div=document.createElement("div");
+ div.className="msg "+type;
+ div.textContent=text;
+ messages.appendChild(div);
+ messages.scrollTop=messages.scrollHeight;
+}
+function assistantReply(text) {
+ const q=text.toLowerCase();
+ if(q.includes("price")||q.includes("cost")) return "Prices are shown on each product card. Contact Velora Digital to confirm the current price before paying.";
+ if(q.includes("buy")||q.includes("payment")||q.includes("pay")) return "Choose a product and click Enquire / Buy. This opens WhatsApp so you can confirm the product, price and payment instructions.";
+ if(q.includes("deliver")||q.includes("file")||q.includes("receive")) return "Digital files are delivered after payment verification. Please contact us on WhatsApp with your order details.";
+ if(q.includes("product")||q.includes("sell")||q.includes("catalogue")) return products.length ? "There are currently "+products.length+" published products in our catalogue. Scroll to the Products section to explore them." : "Our product catalogue is currently empty or still connecting. Please check back soon.";
+ if(q.includes("hello")||q.includes("hi")||q.includes("hey")) return "Hello! Welcome to Velora Digital. Ask me about our digital products, prices, payment process or delivery.";
+ return "I can help with product information, pricing, payment instructions and delivery. You can also contact Velora Digital through WhatsApp.";
+}
+function openChat() {
+ $("chatBox").classList.add("open");
+ if(!messages.children.length) addMessage("Hello! Welcome to Velora Digital. How can I help you?", "bot");
+ $("chatInput").focus();
+}
+$("chatLaunch").addEventListener("click",openChat);
+$("chatClose").addEventListener("click",()=>$("chatBox").classList.remove("open"));
+$("chatForm").addEventListener("submit",e=>{
+ e.preventDefault();
+ const text=$("chatInput").value.trim();
+ if(!text)return;
+ addMessage(text,"user");
+ $("chatInput").value="";
+ setTimeout(()=>addMessage(assistantReply(text),"bot"),250);
+});
+document.querySelectorAll(".quick button").forEach(button=>button.addEventListener("click",()=>{
+ const text=button.dataset.q;
+ addMessage(text,"user");
+ setTimeout(()=>addMessage(assistantReply(text),"bot"),250);
+}));
 
-      if(q.includes("buy") || q.includes("purchase") || q.includes("payment") || q.includes("pay")){
-        return "To buy: scroll to Payment, scan the PhonePe QR code and pay ₹599. Then tap the WhatsApp button, attach your payment screenshot and send it. After verification, the complete kit will be delivered on WhatsApp.";
-      }
-
-      if(q.includes("beginner") || q.includes("coding") || q.includes("program")){
-        return "You don't need programming knowledge. The kit is designed to be beginner-friendly. You mainly copy a prompt, replace the bracketed information and paste it into your AI tool.";
-      }
-
-      if(q.includes("hello") || q.includes("hi") || q.includes("hey")){
-        return "Hello! 👋 Welcome to Velora Digital. I'm the website assistant for the AI Business Starter Kit 2026. Ask me about the kit, price, contents or how to buy.";
-      }
-
-      return "I can help with the AI Business Starter Kit 2026, including its price, contents, business use cases and payment process. You can also tell me what type of business you have.";
-    }
-
-    function openChat(){
-      chatBox.classList.add("open");
-      if(!messages.children.length){
-        addMessage("Hello! 👋 Welcome to Velora Digital. I'm the assistant for the AI Business Starter Kit 2026. How can I help you?", "bot");
-      }
-      setTimeout(() => chatInput.focus(), 100);
-    }
-
-    chatLaunch.addEventListener("click", openChat);
-    chatClose.addEventListener("click", () => chatBox.classList.remove("open"));
-
-    chatForm.addEventListener("submit", (e) => {
-      e.preventDefault();
-      const text = chatInput.value.trim();
-      if(!text) return;
-      addMessage(text, "user");
-      chatInput.value = "";
-      setTimeout(() => addMessage(assistantReply(text), "bot"), 350);
-    });
-
-    document.querySelectorAll(".quick button").forEach(btn => {
-      btn.addEventListener("click", () => {
-        const text = btn.dataset.q;
-        addMessage(text, "user");
-        setTimeout(() => addMessage(assistantReply(text), "bot"), 300);
-      });
-    });
-  </script>
+loadProducts();
+</script>
 </body>
 </html>
