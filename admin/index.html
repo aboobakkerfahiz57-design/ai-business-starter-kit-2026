@@ -1,4 +1,4 @@
-
+ 
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -125,8 +125,16 @@ tr:last-child td{border-bottom:0}
           <div class="field"><label>Category</label><input id="pCategory" value="E-book" placeholder="E-book / Trading / Business"></div>
           <div class="field"><label>Website visibility</label><select id="pStatus"><option value="active">Published — show on website</option><option value="inactive">Draft / hidden</option></select></div>
           <div class="field full"><label>Product description</label><textarea id="pDescription" rows="3" placeholder="Describe this product for customers"></textarea></div>
-          <div class="field full"><label>Cover image URL (optional)</label><input id="pImage" type="url" placeholder="https://..."></div>
-          <div class="field full"><label>Digital product link (optional)</label><input id="pFile" type="url" placeholder="https://..."></div>
+          <div class="field full">
+            <label>Cover image (optional) — choose an image from your computer</label>
+            <input id="pImageFile" type="file" accept="image/jpeg,image/png,image/webp">
+            <input id="pImage" type="hidden" value="">
+            <small>JPG, PNG or WebP · Maximum 5 MB</small>
+            <div id="coverPreviewWrap" class="hidden" style="margin-top:10px">
+              <img id="coverPreview" alt="E-book cover preview" style="display:block;max-width:220px;max-height:280px;object-fit:contain;border:1px solid var(--line);border-radius:10px;background:#091321;padding:5px">
+              <button id="removeCoverBtn" class="secondary" type="button" style="margin-top:8px">Remove cover</button>
+            </div>
+          </div>
           <div class="field full"><label>Purchase instructions / notes (optional)</label><textarea id="pNotes" rows="2"></textarea></div>
           <div class="full actions"><button id="saveProductBtn" type="submit">Save product</button></div>
         </form>
@@ -256,6 +264,10 @@ function clearProductForm() {
   $("productId").value="";
   $("pCategory").value="E-book";
   $("pStatus").value="active";
+  $("pImage").value="";
+  $("pImageFile").value="";
+  $("coverPreview").removeAttribute("src");
+  $("coverPreviewWrap").classList.add("hidden");
   $("saveProductBtn").textContent="Save product";
 }
 
@@ -417,7 +429,14 @@ document.addEventListener("click",async e=>{
     $("pStatus").value=p.status||"active";
     $("pDescription").value=p.description||"";
     $("pImage").value=p.image_url||"";
-    $("pFile").value=p.file_url||"";
+    $("pImageFile").value="";
+    if(p.image_url){
+      $("coverPreview").src=p.image_url;
+      $("coverPreviewWrap").classList.remove("hidden");
+    }else{
+      $("coverPreview").removeAttribute("src");
+      $("coverPreviewWrap").classList.add("hidden");
+    }
     $("pNotes").value=p.notes||"";
     $("saveProductBtn").textContent="Update product";
     showPage("products");
@@ -454,6 +473,39 @@ document.addEventListener("click",async e=>{
   }
 });
 
+$("pImageFile").addEventListener("change",()=>{
+  const file=$("pImageFile").files?.[0];
+  if(!file){
+    const existing=$("pImage").value.trim();
+    if(existing){
+      $("coverPreview").src=existing;
+      $("coverPreviewWrap").classList.remove("hidden");
+    }else{
+      $("coverPreview").removeAttribute("src");
+      $("coverPreviewWrap").classList.add("hidden");
+    }
+    return;
+  }
+  if(!["image/jpeg","image/png","image/webp"].includes(file.type)){
+    $("pImageFile").value="";
+    showMessage("Choose a JPG, PNG or WebP image.","error");
+    return;
+  }
+  if(file.size>5*1024*1024){
+    $("pImageFile").value="";
+    showMessage("Cover image must be 5 MB or smaller.","error");
+    return;
+  }
+  $("coverPreview").src=URL.createObjectURL(file);
+  $("coverPreviewWrap").classList.remove("hidden");
+});
+$("removeCoverBtn").addEventListener("click",()=>{
+  $("pImageFile").value="";
+  $("pImage").value="";
+  $("coverPreview").removeAttribute("src");
+  $("coverPreviewWrap").classList.add("hidden");
+});
+
 $("productForm").addEventListener("submit",async e=>{
   e.preventDefault();
   const id=$("productId").value;
@@ -464,23 +516,38 @@ $("productForm").addEventListener("submit",async e=>{
     status:$("pStatus").value,
     description:$("pDescription").value.trim()||null
   };
-  /* These two optional columns must exist in your products table to store these values.
-     If your schema doesn't have them, the other product fields still work. */
-  if($("pImage").value.trim()) product.image_url=$("pImage").value.trim();
-  if($("pFile").value.trim()) product.file_url=$("pFile").value.trim();
-  if($("pNotes").value.trim()) product.notes=$("pNotes").value.trim();
 
   $("saveProductBtn").disabled=true;
   try{
+    const file=$("pImageFile").files?.[0];
+    if(file){
+      const safeName=file.name.toLowerCase().replace(/[^a-z0-9._-]+/g,"-");
+      const objectPath=`covers/${Date.now()}-${safeName}`;
+      const upload=await db.storage.from("ebook-cover").upload(objectPath,file,{
+        cacheControl:"3600",
+        upsert:false,
+        contentType:file.type
+      });
+      if(upload.error)throw new Error("Cover upload failed: "+upload.error.message);
+      const {data:publicData}=db.storage.from("ebook-cover").getPublicUrl(objectPath);
+      if(!publicData?.publicUrl)throw new Error("Could not create the public cover image URL.");
+      product.image_url=publicData.publicUrl;
+    }else if($("pImage").value.trim()){
+      product.image_url=$("pImage").value.trim();
+    }else{
+      product.image_url=null;
+    }
+
+    if($("pNotes").value.trim()) product.notes=$("pNotes").value.trim();
     const result=id
       ? await db.from("products").update(product).eq("id",id)
       : await db.from("products").insert(product);
     if(result.error)throw result.error;
     clearProductForm();
     await refreshAll();
-    showMessage("Product saved successfully. Published products are available to the public catalogue connected to this database.","success");
+    showMessage("Product saved successfully. The cover image was uploaded and the product details were saved.","success");
   }catch(err){
-    showMessage("Could not save product: "+err.message+". Check whether the products table has these columns.","error");
+    showMessage("Could not save product: "+err.message,"error");
   }finally{$("saveProductBtn").disabled=false;}
 });
 $("clearProduct").addEventListener("click",clearProductForm);
