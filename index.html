@@ -277,7 +277,7 @@ async function loadProducts() {
    supabaseClient = window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
   }
   const {data,error} = await supabaseClient
-   .from("products")
+   .from("published_products")
    .select("id,name,price,category,status,description,image_url")
    .eq("status","active")
    .order("created_at",{ascending:false});
